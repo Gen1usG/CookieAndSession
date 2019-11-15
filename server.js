@@ -21,28 +21,53 @@ var server = http.createServer(function (request, response) {
 
   console.log('有个傻子发请求过来啦！路径（带查询参数）为：' + pathWithQuery)
 
+  if (path === '/register.html' && method === 'POST') {
+    response.statusCode = 200
+    const userJSON = JSON.parse(fs.readFileSync('./db/user.json').toString())
+    const array = []
+    request.on('data', (chunks) => {
+      array.push(chunks)
+      console.log(array);
+    })
+    request.on('end', () => {
+      const data = JSON.parse(Buffer.concat(array).toString())
+      console.log('DATA', data);
+      const lastuser = userJSON[userJSON.length - 1]
+      const newobj = {
+        'id': lastuser ? userJSON.length + 1 : 1,
+        'account': data.account,
+        'password': data.password
+      }
+      userJSON.push(newobj)
+      fs.writeFileSync('./db/user.json', JSON.stringify(userJSON))
+    })
 
-  response.statusCode = 200
-  // 默认主页
-  const filePath = path === '/' ? '/index.html' : path
-  const suffix = filePath.substring(filePath.lastIndexOf('.'))
-  const suffixTable = {
-    '.js': 'text/javascript',
-    '.html': 'text/html',
-    '.css': 'text/css',
-    '.png': 'image/png',
-    '.jpg': 'image/jpeg'
+
+
+  } else {
+    response.statusCode = 200
+    // 默认主页
+    const filePath = path === '/' ? '/index.html' : path
+    const suffix = filePath.substring(filePath.lastIndexOf('.'))
+    const suffixTable = {
+      '.js': 'text/javascript',
+      '.html': 'text/html',
+      '.css': 'text/css',
+      '.png': 'image/png',
+      '.jpg': 'image/jpeg'
+    }
+    response.setHeader('Content-Type', `${suffixTable[suffix] || 'text/html'};charset=utf-8`)
+    let responseContent
+    try {
+      responseContent = fs.readFileSync(`./public${filePath}`)
+    } catch (error) {
+      response.statusCode = 404
+      responseContent = '没有这个文件'
+    }
+    response.write(responseContent)
+    response.end()
   }
-  response.setHeader('Content-Type', `${suffixTable[suffix] || 'text/html'};charset=utf-8`)
-  let responseContent
-  try {
-    responseContent = fs.readFileSync(`./public${filePath}`)
-  } catch (error) {
-    response.statusCode = 404
-    responseContent = '没有这个文件'
-  }
-  response.write(responseContent)
-  response.end()
+
 
   /******** 代码结束，下面不要看 ************/
 })

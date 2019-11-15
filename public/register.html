@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <form id='registerForm'>
+        <label>账号：<input type="text" name='account'></label>
+        <label>密码：<input type="password" name='password'></label>
+        <button type='submit'>注册</button>
+    </form>
+    <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+    <script>
+        $('#registerForm').on('submit', (e) => {
+            // 阻止form默认的submit行为，否则会默认以get的方式进行提交
+            e.preventDefault()
+            const account = $('input[name=account]').val()
+            const password = $('input[name=password]').val()
+            $.ajax({
+                method: 'POST',
+                url: '/register.html',
+                contentType: 'text/json; charset=UTF-8',
+                data: JSON.stringify({ account, password })
+            })
+        })
+    </script>
+</body>
+
+</html>
