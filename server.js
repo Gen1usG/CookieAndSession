@@ -27,11 +27,9 @@ var server = http.createServer(function (request, response) {
     const array = []
     request.on('data', (chunks) => {
       array.push(chunks)
-      console.log(array);
     })
     request.on('end', () => {
       const data = JSON.parse(Buffer.concat(array).toString())
-      console.log('DATA', data);
       const lastuser = userJSON[userJSON.length - 1]
       const newobj = {
         'id': lastuser ? userJSON.length + 1 : 1,
@@ -41,9 +39,7 @@ var server = http.createServer(function (request, response) {
       userJSON.push(newobj)
       fs.writeFileSync('./db/user.json', JSON.stringify(userJSON))
     })
-
-
-
+    response.end()
   } else {
     response.statusCode = 200
     // 默认主页
